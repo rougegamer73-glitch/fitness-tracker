@@ -1,44 +1,68 @@
-# Starter React Typescript Ethers.js Hardhat Project
+# FitChain (Pure Blockchain DApp)
 
-This repo contains a Hardhat and React Dapp starter project. The React Dapp in the `frontend` dir of this repo interacts with Hardhat's example `Greeter.sol` smart contract running on a local blockchain. The Hardhat `Greeter.sol` example contract is the boilerplate contract that Hardhat creates when creating a new Hardhat project via `yarn hardhat init`.
+FitChain is a simplified blockchain-backed fitness DApp prototype:
+- workouts are logged on-chain through `FitnessAchievement`
+- users confirm transactions in MetaMask
+- frontend reads workouts, stats, achievements, and rewards directly from the smart contract
+- backend is only a minimal assignment API (`/api/health`, `/api/about`)
 
-The React Dapp in this repo looks like this:
+## Architecture
 
-![React Dapp](https://res.cloudinary.com/divzjiip8/image/upload/c_scale,w_1280/v1641785505/Screen_Shot_2022-01-03_at_3.52.58_PM_n7ror7.png)
+- Frontend: React + TypeScript
+- Backend: Express (health/about only)
+- Blockchain: Hardhat + Solidity (`pragma solidity ^0.8.4`)
+- Wallet: MetaMask
+- Network: Hardhat Localhost (`chainId: 31337`)
 
-The Dapp uses the [@web3-react npm package's](https://www.npmjs.com/package/web3-react) injected web3 provider to connect to MetaMask and demonstrates the following functionality:
-* Connecting a Dapp to the blockchain
-* Reading account data from the blockchain
-* Cryptographically signing digital messages
-* Deploying new instances of a smart contract
-* Reading and writing data to and from the deployed smart contract
+## Why No Database Is Needed
 
-This repo can be useful to anyone looking to get a local Ethereum blockchain running and to get a Dapp up and communicating with the local node quickly.
+This version stores workout summaries as contract state on the blockchain.  
+Because the blockchain is the persistence layer for the prototype, a separate database (MongoDB or otherwise) is not required.
 
-Additionally, this repo is a companion project to [ChainShot](https://www.chainshot.com)'s [How to Build a React Dapp with Hardhat and MetaMask](https://medium.com/p/9cec8f6410d3) Medium article. The article and this GitHub repo are recommended for anyone wanting to build up their web3 skills and are helpful resources for anyone interested in joining any of [ChainShot's bootcamps](https://www.chainshot.com/bootcamp).
+## Run Locally
 
-The smart contract and Hardhat node part of this project were created by installing the [Hardhat npm package](https://www.npmjs.com/package/hardhat) and bootstrapping a Hardhat project by running: `yarn hardhat init`. For more details you can read more in the [Hardhat README doc](https://github.com/nomiclabs/hardhat). The `frontend` part of this project was created using [Create React App](https://github.com/facebook/create-react-app).
-
-Pull this project down from GitHub, cd into the project directory and run the following commands to get setup and running.
-
-```shell
-yarn
-yarn compile
-yarn hardhat node
+### Terminal 1
+```bash
+cd blockchain
+npx hardhat node
 ```
 
-The commands above will install the project dependencies, compile the sample contract and run a local Hardhat node on port `8545`, using chain id `31337`.
-
-After running the above tasks checkout the frontend [README.md](https://github.com/ChainShot/hardhat-ethers-react-ts-starter/tree/main/frontend/README.md) to run a React Dapp using ethers.js that will interact with the sample contract on the local Hardhat node.
-
-Some other hardhat tasks to try out are:
-
-```shell
-yarn hardhat accounts
-yarn hardhat clean
-yarn hardhat compile
-yarn hardhat deploy
-yarn hardhat help
-yarn hardhat node
-yarn hardhat test
+### Terminal 2
+```bash
+cd blockchain
+npx hardhat compile
+npx hardhat test
+npx hardhat run scripts/deploy.ts --network localhost
 ```
+
+### Terminal 3
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Terminal 4
+```bash
+cd frontend
+npm install
+npm start
+```
+
+The deploy script writes `frontend/.env.local` with:
+- `REACT_APP_API_BASE_URL=http://localhost:5000/api`
+- `REACT_APP_FITNESS_CONTRACT_ADDRESS=<deployedAddress>`
+- `REACT_APP_DEPLOYED_CHAIN_ID=31337`
+- `REACT_APP_RPC_URL=http://127.0.0.1:8545`
+
+## Demo Flow
+
+1. Open the frontend and connect MetaMask.
+2. Ensure MetaMask is on Hardhat Localhost (`31337`).
+3. Enter workout details and submit **Confirm Workout on Blockchain**.
+4. Confirm the transaction in MetaMask.
+5. After confirmation, verify:
+   - workout appears in history
+   - stats refresh from chain
+   - eligible achievements auto-claim
+   - FIT reward balance updates from chain
