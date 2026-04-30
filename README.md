@@ -66,3 +66,40 @@ The deploy script writes `frontend/.env.local` with:
    - stats refresh from chain
    - eligible achievements auto-claim
    - FIT reward balance updates from chain
+
+## Deploy frontend (Vercel or Netlify)
+
+The UI is a static Create React App build. **You cannot host the Hardhat node on Vercel/Netlify** — users still need a real RPC + deployed contract (local Hardhat on their machine, or a public testnet).
+
+### Environment variables (set in the host’s dashboard)
+
+Use your production site URL in place of `https://YOUR_SITE`:
+
+| Variable | Example | Notes |
+|----------|---------|--------|
+| `REACT_APP_API_BASE_URL` | `https://YOUR_SITE/api` | Health card calls `.../api/health`. On Vercel/Netlify this repo wires `/api/health` for you. |
+| `REACT_APP_FITNESS_CONTRACT_ADDRESS` | `0x...` | Must match the contract on the network users select in MetaMask. |
+| `REACT_APP_DEPLOYED_CHAIN_ID` | `31337` or `11155111` | Must match MetaMask (e.g. Sepolia). |
+| `REACT_APP_RPC_URL` | optional | Local builds only; the app uses MetaMask’s provider for reads/writes. |
+
+Redeploy after changing these (CRA bakes them in at build time).
+
+### Vercel
+
+1. Import [your GitHub repo](https://github.com/rougegamer73-glitch/fitness-tracker).
+2. **Root Directory:** `frontend`
+3. Framework: Create React App (auto).
+4. Add the env vars above. Set `REACT_APP_API_BASE_URL` to `https://<your-vercel-domain>/api`.
+5. Deploy. Serverless routes live in `frontend/api/` (`/api/health`, `/api/about`).
+
+### Netlify
+
+1. New site from Git → same repo (root must contain **`netlify.toml`**).
+2. In **Site settings → Build & deploy → Build settings**, leave the **Publish directory** blank or set it to **`frontend/build`** so it matches `netlify.toml`. If it is set to only `build`, Netlify looks at the repo root and deploys nothing → **“Page not found”**.
+3. Build command and publish path are defined in `netlify.toml` (`frontend/build` after `npm run build` in `frontend/`).
+4. Add the same env vars. Set `REACT_APP_API_BASE_URL` to `https://<your-netlify-domain>/api`.
+5. Trigger **Deploy site** (clear cache if an old bad deploy is cached).
+
+### Local Hardhat + hosted UI
+
+If the site is public but the chain is still **localhost**, only people running **their own** `npx hardhat node` + deploy + MetaMask on `31337` can use the contract; point `REACT_APP_FITNESS_CONTRACT_ADDRESS` at the address from *their* deploy (or use a shared testnet instead).

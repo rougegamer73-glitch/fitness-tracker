@@ -16,6 +16,7 @@ import {
   getRewardBalance,
   OnChainWorkout,
 } from "./services/contract";
+import { getApiHealthUrl } from "./config";
 
 function App() {
   const [walletAddress, setWalletAddress] = useState("");
@@ -172,7 +173,7 @@ function App() {
 
   const checkBackend = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/health");
+      const response = await fetch(getApiHealthUrl());
       const data = await response.json();
       setBackendStatus(data.message || "Backend connected.");
     } catch {

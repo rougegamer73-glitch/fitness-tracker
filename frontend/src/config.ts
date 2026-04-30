@@ -6,3 +6,9 @@ export const CONTRACT_ADDRESS =
 
 export const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+
+/** Same-origin on Vercel/Netlify when REACT_APP_API_BASE_URL is set to the deployed /api base. */
+export function getApiHealthUrl(): string {
+  const base = API_BASE_URL.replace(/\/$/, "");
+  return `${base}/health`;
+}

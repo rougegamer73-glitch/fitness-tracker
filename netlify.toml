@@ -1,0 +1,26 @@
+# Netlify: paths below are relative to the repository root (where this file lives).
+# "publish" must point at the CRA output: frontend/build — NOT repo-root "build".
+
+[build]
+  command = "cd frontend && npm ci && npm run build"
+  publish = "frontend/build"
+
+[functions]
+  directory = "frontend/netlify/functions"
+
+# API parity with local Express (/api/health, /api/about)
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+[[redirects]]
+  from = "/api/about"
+  to = "/.netlify/functions/about"
+  status = 200
+
+# SPA fallback (Create React App client-side routes)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
