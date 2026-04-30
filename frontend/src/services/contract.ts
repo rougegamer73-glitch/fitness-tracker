@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import FitnessAchievement from "../artifacts/contracts/FitnessAchievement.sol/FitnessAchievement.json";
+import { FitnessAchievementAbi } from "./fitnessAchievementAbi";
 
 declare global {
   interface Window {
@@ -79,12 +79,12 @@ async function getSigner() {
 
 async function getContractWithSigner() {
   const signer = await getSigner();
-  return new ethers.Contract(CONTRACT_ADDRESS, FitnessAchievement.abi, signer);
+  return new ethers.Contract(CONTRACT_ADDRESS, FitnessAchievementAbi as any, signer);
 }
 
 async function getContractWithProvider() {
   const provider = await getProvider();
-  return new ethers.Contract(CONTRACT_ADDRESS, FitnessAchievement.abi, provider as any);
+  return new ethers.Contract(CONTRACT_ADDRESS, FitnessAchievementAbi as any, provider as any);
 }
 
 export async function ensureHardhatNetwork() {
